@@ -18,7 +18,6 @@ def calc_metrics(df:pd.DataFrame, ticker:str, strategy_id:str):
 
     metrics_df = pd.DataFrame({
         'ticker': [ticker],
-        'strategy_id': [strategy_id],
         'total_return': [total_return],
         'sharpe_ratio': [sharpe],
         'max_drawdown': [max_drawdown],

@@ -3,6 +3,10 @@ from src.backtester.indicators import sma
 from src.backtester.indicators import macd
 from src.backtester.indicators import rsi
 
+def confirm_signal(df: pd.DataFrame, signal_col: str, lookahead_days: int) -> pd.Series:
+    """Returns a boolean series where True if signal happens within the next lookahead days."""
+    return df[signal_col].rolling(lookahead_days, min_periods=1).max().astype(bool)
+
 def generate_signals_sma_macd_rsi(df:pd.DataFrame):
     df['holding'] = 0
     df['days_in_position'] = 0
@@ -66,8 +70,12 @@ def sma_macd_rsi(df:pd.DataFrame, strategy_params:dict):
     df['rsi_long_signal'] = df['rsi'] > 50
     df['macd_cross_long'] = (df['macd'] > df['macd_signal']) & (df['macd'].shift(1) <= df['macd_signal'].shift(1))
 
-    df['sma_cross_long_entry'] = df['sma_cross_long'].rolling(strategy_params['lookahead_days'], min_periods=1).max().astype(bool)
-    df['macd_cross_long_entry'] = df['macd_cross_long'].rolling(strategy_params['lookahead_days'], min_periods=1).max().astype(bool)
+    # df['sma_cross_long_entry'] = df['sma_cross_long'].rolling(strategy_params['lookahead_days'], min_periods=1).max().astype(bool)
+    # df['macd_cross_long_entry'] = df['macd_cross_long'].rolling(strategy_params['lookahead_days'], min_periods=1).max().astype(bool)
+    df['sma_cross_long_entry'] = confirm_signal(df, 'sma_cross_long', strategy_params['lookahead_days'])
+    df['macd_cross_long_entry'] = confirm_signal(df, 'macd_cross_long', strategy_params['lookahead_days'])
+    df['long_entry'] = df['rsi_long_signal'] & (df['sma_cross_long_entry'] | df['macd_cross_long_entry'])
+
     # display(df[df['macd_cross_long_entry']==True])
     df['long_entry'] = df['rsi_long_signal'] & (df['sma_cross_long_entry'] | df['macd_cross_long_entry'])
     # display(df)

@@ -22,8 +22,10 @@ def backtest_sma_macd_rsi(sd:str, ed:str, ticker:str, strategy_params:dict, exec
     if metrics_dir is not None:
         os.makedirs(metrics_dir, exist_ok=True)
 
-    trades_df = calc_trades(df)
-    trade_metrics_df = calc_trades_metrics(df, ticker, strategy_id, metrics_dir)
+    trades_df = calc_trades(df, strategy_id)
+    trade_metrics_df = calc_trades_metrics(df, ticker, strategy_id, metrics_dir)[['strategy_id', 'entries', 'exits', 'profitable_trades',
+       'non_profitable_trades', 'total_trades', 'pct_profitable',
+       'avg_pnl_per_trade']]
     print(trade_metrics_df)
     get_recent_trades(trades_df, ticker, strategy_id, metrics_dir)
 

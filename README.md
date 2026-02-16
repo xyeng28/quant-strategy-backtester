@@ -100,10 +100,10 @@ Exit Condition 2:
 └── README.md
 ```
 
-backtester/ – core simulation engine
-strategies/ – signal generation logic
-metrics/ – performance evaluation
-notebooks/ – research and visualization
+backtester/ – core simulation engine\
+strategies/ – signal generation logic\
+metrics/ – performance evaluation\
+notebooks/ – research and visualisation
 
 ## Key Considerations
 - This project is for research and educational purposes.
