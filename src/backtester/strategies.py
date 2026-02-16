@@ -50,25 +50,24 @@ def generate_signals_sma_macd_rsi(df:pd.DataFrame):
         df[df['days_in_position'] >= 1][['date', 'long_entry', 'long_exit', 'holding', 'days_in_position', 'trade']])
     return df
 
-def sma_macd_rsi(df:pd.DataFrame, sma_fast_period:int=8, sma_slow_period:int=20, macd_fast_period:int=8, macd_slow_period:int=20, macd_signal_period:int=9, rsi_period:int=14):
+def sma_macd_rsi(df:pd.DataFrame, strategy_params:dict):
     close_px = df['close_px']
-    df[f'sma_fast'] = sma(close_px, sma_fast_period)
-    df[f'sma_slow'] = sma(close_px, sma_slow_period)
+    df[f'sma_fast'] = sma(close_px, strategy_params['sma_fast_period'])
+    df[f'sma_slow'] = sma(close_px, strategy_params['sma_slow_period'])
     print(df)
-    macd_df = macd(close_px, fast_period=macd_fast_period, slow_period=macd_slow_period, signal_period=macd_signal_period)
+    macd_df = macd(close_px, fast_period=strategy_params['macd_fast_period'], slow_period=strategy_params['macd_slow_period'], signal_period=strategy_params['macd_signal_period'])
     print(f'macd_df:{macd_df}')
     df = pd.concat([df, macd_df], axis=1)
     print(df)
-    df['rsi'] = rsi(df['close_px'], rsi_period)
+    df['rsi'] = rsi(df['close_px'], strategy_params['rsi_period'])
     print(df)
 
     df['sma_cross_long'] = df['sma_fast'] > df['sma_slow']
     df['rsi_long_signal'] = df['rsi'] > 50
     df['macd_cross_long'] = (df['macd'] > df['macd_signal']) & (df['macd'].shift(1) <= df['macd_signal'].shift(1))
 
-    lookahead_days = 5
-    df['sma_cross_long_entry'] = df['sma_cross_long'].rolling(lookahead_days, min_periods=1).max().astype(bool)
-    df['macd_cross_long_entry'] = df['macd_cross_long'].rolling(lookahead_days, min_periods=1).max().astype(bool)
+    df['sma_cross_long_entry'] = df['sma_cross_long'].rolling(strategy_params['lookahead_days'], min_periods=1).max().astype(bool)
+    df['macd_cross_long_entry'] = df['macd_cross_long'].rolling(strategy_params['lookahead_days'], min_periods=1).max().astype(bool)
     # display(df[df['macd_cross_long_entry']==True])
     df['long_entry'] = df['rsi_long_signal'] & (df['sma_cross_long_entry'] | df['macd_cross_long_entry'])
     # display(df)

@@ -36,7 +36,10 @@ def calc_posn_and_trades(df:pd.DataFrame, allocation:float, initial_capital:floa
     print(df)
     return df
 
-def generate_portfolio(df:pd.DataFrame, allocation:float, initial_capital:float, cost_per_shr:float):
+def generate_portfolio(df:pd.DataFrame, execution_params:dict):
+    allocation = execution_params['allocation']
+    initial_capital = execution_params['initial_capital']
+    cost_per_shr = execution_params['cost_per_shr']
     portfolio_df = df.copy()
     portfolio_df = calc_posn_and_trades(portfolio_df, allocation, initial_capital, cost_per_shr)
     portfolio_df = calc_pnl(portfolio_df, initial_capital)

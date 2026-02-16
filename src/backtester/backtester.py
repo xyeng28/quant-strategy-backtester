@@ -9,11 +9,11 @@ from src.metrics.performance import calc_metrics
 from src.metrics.trade import calc_trades, calc_trades_metrics, get_recent_trades
 
 
-def backtest_sma_macd_rsi(sd:str, ed:str, ticker:str, allocation:float, initial_capital:float, cost_per_shr:float):
+def backtest_sma_macd_rsi(sd:str, ed:str, ticker:str, strategy_params:dict, execution_params:dict):
     hist_data = dl_ticker_hist(ticker, sd, ed)
-    strategy_df = sma_macd_rsi(hist_data)
+    strategy_df = sma_macd_rsi(hist_data, strategy_params)
     df = strategy_df.copy()
-    df = generate_portfolio(df, allocation, initial_capital, cost_per_shr)
+    df = generate_portfolio(df, execution_params)
 
     date_str = dtt.now(pytz.timezone('America/New_York')).strftime('%Y_%m_%d')
     strategy_id = f'sma_macd_rsi_{date_str}'
