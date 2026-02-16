@@ -30,7 +30,7 @@ def calc_metrics(df:pd.DataFrame, ticker:str, strategy_id:str):
     return metrics_df
 
 def get_all_metrics_by_strategy(strategy_id:str):
-    f_dir = f'metrics/{strategy_id}/'
+    f_dir = f'results/metrics/{strategy_id}/'
     files = glob.glob(os.path.join(f_dir, 'metrics_*'))
 
     dfs = [pd.read_csv(f) for f in files]

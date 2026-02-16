@@ -18,7 +18,7 @@ def macd(series:pd.Series, fast_period:int=12, slow_period:int=26, signal_period
         'macd_histogram':histogram
     }, index=series.index)
 
-def rsi(series:pd.Series, period:int):
+def rsi(series:pd.Series, period:int=7):
     delta = series.diff()
     gain = delta.clip(lower=0)
     loss = -delta.clip(upper=0)
