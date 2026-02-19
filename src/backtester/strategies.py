@@ -7,16 +7,19 @@ def confirm_signal(df: pd.DataFrame, signal_col: str, lookahead_days: int) -> pd
     """Returns a boolean series where True if signal happens within the next lookahead days."""
     return df[signal_col].rolling(lookahead_days, min_periods=1).max().astype(bool)
 
-def generate_signals_sma_macd_rsi(df:pd.DataFrame):
-    df['holding'] = 0
-    df['days_in_position'] = 0
-    df['trade'] = ''
-
-    # Step 3: track holding and days in position
+def generate_signals_sma_macd_rsi(df:pd.DataFrame, holding_period:int=5):
+    """
+    Generates holding, trades and days in position
+    :param df:
+    :param holding_period:
+    :return:
+    """
     in_position = False
     days_in_position = 0
-    holding_period = 5
     # display(df[df['long_entry']][['date', 'long_entry','long_exit','holding','days_in_position']])
+    holdings = [0] * len(df)
+    trades = [''] * len(df)
+    days_in_posn_list = [0] * len(df)
 
     for i in range(len(df)):
         # Enter if entry signal and currently flat
@@ -24,30 +27,30 @@ def generate_signals_sma_macd_rsi(df:pd.DataFrame):
             #         print(f'i:{i} Buy Trigger')
             days_in_position = 1
             in_position = True
-            # df['holding'].iat[i] = 1
-            # df['trade'].iat[i] = 'BUY'
-            df.loc[i, 'holding'] = 1
-            df.loc[i, 'trade'] = 'BUY'
+            holdings[i] = 1
+            trades[i] = 'BUY'
         # Already holding
         elif in_position and df['long_exit'].iat[i] and days_in_position < holding_period:
             #         print(f'i:{i} Sell Trigger')
             in_position = False
             days_in_position = 0
-            df.loc[i, 'holding'] = 0
-            df.loc[i, 'trade'] = 'SELL'
+            holdings[i] = 0
+            trades[i] = 'SELL'
         elif in_position and days_in_position == holding_period:
             #         print(f'i:{i} Sell Trigger')
             in_position = False
             days_in_position = 0
-            df.loc[i, 'holding'] = 0
-            df.loc[i, 'trade'] = 'SELL'
+            holdings[i] = 0
+            trades[i] = 'SELL'
         elif in_position:
             days_in_position += 1
-            df.loc[i, 'holding'] = 1
-            df.loc[i, 'trade'] = 'HOLD'
-        df.loc[i, 'days_in_position'] = days_in_position
-        # df['days_in_position'].iat[i] = days_in_position
+            holdings[i] = 1
+            trades[i] = 'HOLD'
+        days_in_posn_list[i] = days_in_position
     #     print(f'i:{i}, in_position:{in_position}, days_in_position:{row["days_in_position"]}')
+    df['holding'] = holdings
+    df['trade'] = trades
+    df['days_in_position'] = days_in_posn_list
 
     # display(df[['date', 'long_entry','long_exit','holding','days_in_position']])
     print(
@@ -95,7 +98,7 @@ def sma_macd_rsi(df:pd.DataFrame, strategy_params:dict):
     exit_df = exit_df[exit_df['long_exit'] == True]
     print(
         exit_df[['date', 'ticker', 'close_px', 'rsi_long_signal', 'sma_cross_long', 'macd_cross_long', 'long_exit']])
-    df = generate_signals_sma_macd_rsi(df)
+    df = generate_signals_sma_macd_rsi(df, holding_period=5)
     return df
 
 
