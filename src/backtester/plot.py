@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as mtick
 import pandas as pd
+from src.constants import PROJECT_ROOT
+
 
 def plot_sma(df:pd.DataFrame, ticker:str, fast_sma_period:int, slow_sma_period:int):
     plt.figure(figsize=(12, 6))
@@ -54,5 +56,5 @@ def plot_equity_curve(df:pd.DataFrame, ticker:str, initial_capital:float):
     plt.gca().yaxis.set_major_formatter(mtick.StrMethodFormatter('${x:,.0f}'))
     plt.legend()
     plt.show()
-    plt.savefig(f'results/equity/{ticker.lower().replace("-", "_")}_equity_curve.png', dpi=300)
+    plt.savefig(f'{PROJECT_ROOT}/results/equity/{ticker.lower().replace("-", "_")}_equity_curve.png', dpi=300)
 
