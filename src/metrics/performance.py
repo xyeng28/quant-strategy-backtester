@@ -6,7 +6,7 @@ from pandas.io.formats.style import Styler
 
 from src.constants import PROJECT_ROOT
 
-def calc_metrics(df:pd.DataFrame, ticker:str) -> pd.DataFrame:
+def calc_metrics(df: pd.DataFrame, ticker: str) -> pd.DataFrame:
     print(f'Calculating Metrics for ticker {ticker}')
     total_return = round((df['cum_ret'].iloc[-1] - 1) * 100, 2)
     print(f'total_return: {total_return}%')

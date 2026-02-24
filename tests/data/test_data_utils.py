@@ -6,7 +6,7 @@ from pathlib import Path
 from src.data.data_utils import get_tickers, dl_ticker_hist
 
 @patch("pandas.read_csv")
-def test_get_tickers(mock_read_csv):
+def test_get_tickers_when_valid_should_return_tickers(mock_read_csv):
     mock_df = pd.DataFrame({"symbol": ["SPY", "QQQM", "GLD"]})
     mock_read_csv.return_value = mock_df
 
@@ -15,7 +15,7 @@ def test_get_tickers(mock_read_csv):
     mock_read_csv.assert_called_once_with('data/tickers.csv')
 
 @patch("src.data.data_utils.fetch_ticker_hist")
-def test_dl_ticker_hist(mock_fetch):
+def test_dl_ticker_hist_when_valid_should_return_hist_df(mock_fetch):
     cols = pd.MultiIndex.from_tuples([
         ('Open', 'USD'), ('High', 'USD'), ('Low', 'USD'), ('Close', 'USD'), ('Volume', '')
     ])
