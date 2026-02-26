@@ -64,10 +64,10 @@ x = 5\
 If SMA or MACD bullish cross up happens within x days, we will hold on to our positions.
 
 Exit condition 1:
-- If SMA cross up or MACD do not happen within x days, we exit.
+- If SMA cross down or MACD cross down happens within x days, then sell position
 
 Exit Condition 2:
-- Hold position til either SMA cross down or MACD cross down (MACD histogram > 0)
+- If SMA cross down or MACD cross down does not happen within x days, we exit.
 
 
 ## Performance Metrics
