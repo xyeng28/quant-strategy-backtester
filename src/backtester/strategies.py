@@ -3,11 +3,17 @@ from src.backtester.indicators import sma
 from src.backtester.indicators import macd
 from src.backtester.indicators import rsi
 
-def confirm_signal(df: pd.DataFrame, signal_col: str, lookahead_days: int) -> pd.Series:
-    """Returns a boolean series where True if signal happens within the next lookahead days."""
-    return df[signal_col].rolling(lookahead_days, min_periods=1).max().astype(bool)
 
-def generate_signals_sma_macd_rsi(df:pd.DataFrame, holding_period:int=5):
+def cross_up(series_fast: pd.Series, series_slow: pd.Series) -> pd.Series:
+    return (series_fast > series_slow) & (series_fast.shift(1) <= series_slow.shift(1))
+
+
+def confirm_signal_lb(df: pd.DataFrame, signal_col: str, lookback_days: int = 5) -> pd.Series:
+    """Returns a boolean series where True if signal happened within the previous lookback days."""
+    return df[signal_col].rolling(lookback_days, min_periods=1).max().astype(bool)
+
+
+def generate_signals_sma_macd_rsi(df: pd.DataFrame, holding_period: int = 5):
     """
     Generates holding, trades and days in position
     :param df:
@@ -16,7 +22,6 @@ def generate_signals_sma_macd_rsi(df:pd.DataFrame, holding_period:int=5):
     """
     in_position = False
     days_in_position = 0
-    # display(df[df['long_entry']][['date', 'long_entry','long_exit','holding','days_in_position']])
     holdings = [0] * len(df)
     trades = [''] * len(df)
     days_in_posn_list = [0] * len(df)
@@ -24,24 +29,23 @@ def generate_signals_sma_macd_rsi(df:pd.DataFrame, holding_period:int=5):
     for i in range(len(df)):
         # Enter if entry signal and currently flat
         if df['long_entry'].iat[i] and not in_position:
-            #         print(f'i:{i} Buy Trigger')
             days_in_position = 1
             in_position = True
             holdings[i] = 1
             trades[i] = 'BUY'
-        # Already holding
+        # To exit upon exit signal
         elif in_position and df['long_exit'].iat[i] and days_in_position < holding_period:
-            #         print(f'i:{i} Sell Trigger')
             in_position = False
             days_in_position = 0
             holdings[i] = 0
             trades[i] = 'SELL'
+        # To sell days_in_position reaches holding period
         elif in_position and days_in_position == holding_period:
-            #         print(f'i:{i} Sell Trigger')
             in_position = False
             days_in_position = 0
             holdings[i] = 0
             trades[i] = 'SELL'
+        # To hold
         elif in_position:
             days_in_position += 1
             holdings[i] = 1
@@ -51,62 +55,30 @@ def generate_signals_sma_macd_rsi(df:pd.DataFrame, holding_period:int=5):
     df['holding'] = holdings
     df['trade'] = trades
     df['days_in_position'] = days_in_posn_list
-
-    # display(df[['date', 'long_entry','long_exit','holding','days_in_position']])
-    print(
-        df[df['days_in_position'] >= 1][['date', 'long_entry', 'long_exit', 'holding', 'days_in_position', 'trade']])
+    # print(df[['date', 'long_entry','long_exit','holding','days_in_position']])
     return df
 
-def sma_macd_rsi(df:pd.DataFrame, strategy_params:dict):
+
+def sma_macd_rsi(df: pd.DataFrame, strategy_params: dict) -> pd.DataFrame:
     close_px = df['close_px']
     df[f'sma_fast'] = sma(close_px, strategy_params['sma_fast_period'])
     df[f'sma_slow'] = sma(close_px, strategy_params['sma_slow_period'])
-    print(df)
-    macd_df = macd(close_px, fast_period=strategy_params['macd_fast_period'], slow_period=strategy_params['macd_slow_period'], signal_period=strategy_params['macd_signal_period'])
+
+    macd_df = macd(close_px, fast_period=strategy_params['macd_fast_period'],
+                   slow_period=strategy_params['macd_slow_period'], signal_period=strategy_params['macd_signal_period'])
     print(f'macd_df:{macd_df}')
     df = pd.concat([df, macd_df], axis=1)
-    print(df)
     df['rsi'] = rsi(df['close_px'], strategy_params['rsi_period'])
-    print(df)
 
-    df['sma_cross_long'] = df['sma_fast'] > df['sma_slow']
-    df['rsi_long_signal'] = df['rsi'] > 50
-    df['macd_cross_long'] = (df['macd'] > df['macd_signal']) & (df['macd'].shift(1) <= df['macd_signal'].shift(1))
+    df['sma_cross_long'] = cross_up(df['sma_fast'], df['sma_slow'])
+    df['macd_cross_long'] = cross_up(df['macd'], df['macd_signal'])
+    df['rsi_long_signal'] = df['rsi'] > 50 & (df['rsi'].shift(1) <= 50)
 
-    # df['sma_cross_long_entry'] = df['sma_cross_long'].rolling(strategy_params['lookahead_days'], min_periods=1).max().astype(bool)
-    # df['macd_cross_long_entry'] = df['macd_cross_long'].rolling(strategy_params['lookahead_days'], min_periods=1).max().astype(bool)
-    df['sma_cross_long_entry'] = confirm_signal(df, 'sma_cross_long', strategy_params['lookahead_days'])
-    df['macd_cross_long_entry'] = confirm_signal(df, 'macd_cross_long', strategy_params['lookahead_days'])
-    df['long_entry'] = df['rsi_long_signal'] & (df['sma_cross_long_entry'] | df['macd_cross_long_entry'])
-
-    # display(df[df['macd_cross_long_entry']==True])
-    df['long_entry'] = df['rsi_long_signal'] & (df['sma_cross_long_entry'] | df['macd_cross_long_entry'])
-    # display(df)
-    print(df.columns)
-
-    entry_df = df.copy()
-    entry_df = entry_df[entry_df['long_entry'] == True]
-    print(
-        entry_df[['date', 'ticker', 'close_px', 'rsi_long_signal', 'sma_cross_long', 'macd_cross_long', 'long_entry']])
-    # print(f'entry_dates:{entry_df["date"].unique().tolist()}')
-
+    df['rsi_recent'] = confirm_signal_lb(df, 'rsi_long_signal', strategy_params['lookback_days'])
+    df['long_entry'] = df['rsi_recent'] & (df['sma_cross_long'] | df['macd_cross_long'])
     df['long_exit'] = (df['sma_cross_long'] == False) | (df['macd_cross_long'] == False)
-    # df = df.drop('sma_cross_short',axis=1)
-    # display(df)
 
-    exit_df = df.copy()
-    exit_df = exit_df[exit_df['long_exit'] == True]
-    print(
-        exit_df[['date', 'ticker', 'close_px', 'rsi_long_signal', 'sma_cross_long', 'macd_cross_long', 'long_exit']])
+    print(df.columns)
+    print(df)
     df = generate_signals_sma_macd_rsi(df, holding_period=5)
     return df
-
-
-
-
-
-
-
-
-
-

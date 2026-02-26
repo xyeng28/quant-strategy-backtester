@@ -16,6 +16,6 @@ if __name__ == '__main__':
         "macd_slow_period": 26,
         "macd_signal_period": 9,
         "rsi_period": 7,
-        "lookahead_days": 5
+        "lookback_days": 5
     }
     backtest_sma_macd_rsi(start_date, end_date, ticker, strategy_params, execution_params)
