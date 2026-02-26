@@ -19,10 +19,9 @@ The goal is to build a backtesting framework for single-asset, long-only systema
 
 ### ⚠️ Work in Progress (WIP)
 Planned features:
-- Refactoring of code
 - Logging
+- Pylint & Pep8 reformatting of file
 - Docstrings & documentation
-- Unit tests
 
 ## Data
 - Daily OHLCV data (focus on close prices)
@@ -68,7 +67,7 @@ Exit condition 1:
 - If SMA cross up or MACD do not happen within x days, we exit.
 
 Exit Condition 2:
-- If SMA cross up or MACD happens within x days, then hold position til either SMA cross down or MACD cross down (MACD histogram > 0)
+- Hold position til either SMA cross down or MACD cross down (MACD histogram > 0)
 
 
 ## Performance Metrics
