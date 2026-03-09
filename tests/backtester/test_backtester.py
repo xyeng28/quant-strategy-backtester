@@ -27,7 +27,7 @@ def test_compute_all_metrics_when_valid_should_return_df(
         "holding": [1, 0],
         "trade": ["BUY", "SELL"],
         "close_px": [100, 101],
-        "daily_ret_c2c": [0.01, 0.02],
+        "daily_ret_o2c": [0.01, 0.02],
         "daily_pnl": [0.0, 0.0],
         "trade_cost": [0.0, 0.0],
         "cum_ret": [0.0, 0.0],
@@ -57,19 +57,20 @@ def test_compute_all_metrics_when_valid_should_return_df(
         "position_shrs": [193.0],
         "avg_pnl_per_trade": [60.5],
     })
+    initial_capital = 10000
     mock_calc_metrics.return_value = pd.DataFrame(
         [['QQQM','sma_macd_rsi_2026_02_15',62.13,0.63,-0.34,19481.02,322,321,181,141,322,56.21,60.5]],
         columns = ['ticker','strategy_id','total_return','sharpe_ratio','max_drawdown','total_pnl','entries','exits','profitable_trades','non_profitable_trades','total_trades','pct_profitable','avg_pnl_per_trade'
     ])
 
     mock_get_recent_trades.return_value = None
-    result = compute_all_metrics(df, ticker, strategy_id)
+    result = compute_all_metrics(df, ticker, strategy_id, initial_capital=initial_capital)
 
     mock_makedirs.assert_called_once()
     mock_calc_trades.assert_called_once_with(df, strategy_id)
     mock_calc_trades_metrics.assert_called_once()
     mock_get_recent_trades.assert_called_once()
-    mock_calc_metrics.assert_called_once_with(df, ticker)
+    mock_calc_metrics.assert_called_once_with(df, ticker, initial_capital=initial_capital)
     mock_to_csv.assert_called_once()
 
     expected_cols = [

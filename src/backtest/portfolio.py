@@ -6,28 +6,36 @@ import pandas as pd
 import numpy as np
 
 
+def calc_returns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Position is shifted by 1 so that today's return is earned by yesterday's position.
+    Trades are executed at next day's open, with transaction costs applied at entry.
+    :param df:
+    :param initial_capital:
+    :return:
+    """
+    print(f'Calculating Returns...')
+    df['daily_ret_o2c'] = (df['close_px'] - df['open_px']) / df['open_px']
+    df.loc[df.index[0], 'daily_ret_o2c'] = 0
+    df['daily_pnl'] = df['position_shrs'].shift(1) * (df['close_px'] - df['open_px']) - df['trade_cost']
+    df.loc[df.index[0], 'daily_pnl'] = 0
+    return df
+
+
 def calc_pnl(df: pd.DataFrame, initial_capital: float) -> pd.DataFrame:
     """
-    Position shifts 1 as today's return was earned by yesterday's position (entered at yesterday's close)
-    trade executed at close(t), cost incurred on close
+    Equity is the total value of trading acct over time = starting capital + accumulated pnl
     :param df:
     :param initial_capital:
     :return:
     """
     print(f'Calculating Pnl...')
-    df['daily_ret_o2c'] = (df['close_px'] - df['open_px']) / df['open_px']
-    df.loc[df.index[0], 'daily_ret_c2c'] = 0
-    df['daily_pnl'] = df['daily_ret_c2c'] * df['position'].shift(1) - df['trade_cost']
-    df.loc[df.index[0], 'daily_pnl'] = 0
-    df['cum_pnl'] = initial_capital + df['daily_pnl'].cumsum()
-    return df
-
-
-def calc_returns(df: pd.DataFrame, initial_capital: float) -> pd.DataFrame:
-    print(f'Calculating Returns...')
-    df['cum_ret'] = (1 + df['daily_ret_c2c']).cumprod()
-    df['cum_ret_pct'] = (df['cum_pnl'] / initial_capital - 1) * 100
-    # print(df[['close_px', 'position', 'daily_ret_c2c', 'cum_ret', 'daily_pnl', 'cum_pnl', 'cum_ret_pct']])
+    df['strategy_ret'] = df['daily_pnl'] / initial_capital
+    df.loc[df.index[0], 'strategy_ret'] = 0
+    df['equity'] = initial_capital + df['daily_pnl'].cumsum()
+    df['cum_pnl'] = df['equity'] - initial_capital
+    df['cum_ret_pct'] = (df['equity'] / initial_capital - 1) * 100
+    # print(df[['close_px', 'position', 'daily_ret_o2c', 'cum_ret', 'daily_pnl', 'cum_pnl', 'cum_ret_pct']])
     return df
 
 
@@ -57,6 +65,6 @@ def generate_portfolio(df: pd.DataFrame, execution_params: dict) -> pd.DataFrame
     cost_per_shr = execution_params['cost_per_shr']
     portfolio_df = df.copy()
     portfolio_df = calc_posn_and_trades(portfolio_df, allocation, initial_capital, cost_per_shr)
+    portfolio_df = calc_returns(portfolio_df)
     portfolio_df = calc_pnl(portfolio_df, initial_capital)
-    portfolio_df = calc_returns(portfolio_df, initial_capital)
     return portfolio_df

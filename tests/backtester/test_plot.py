@@ -86,7 +86,7 @@ def test_plot_rsi_when_valid_should_run_with_lines():
 def test_plot_equity_curve_when_valid_should_run_with_lines():
     df = pd.DataFrame({
         'date': pd.date_range(start='2023-01-01', periods=7),
-        'cum_pnl': [0, 100, 150, 120, 180, 220, 200]
+        'equity': [0, 100, 150, 120, 180, 220, 200]
     })
     ticker = "AAPL"
     initial_capital = 100

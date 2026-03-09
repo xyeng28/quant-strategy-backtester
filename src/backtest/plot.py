@@ -51,7 +51,7 @@ def plot_equity_curve(df: pd.DataFrame, ticker: str, initial_capital: float) -> 
     # Cumulative PnL / Equity Curve
     print(f'Plotting Equity Curve for {ticker} with initial capital {initial_capital}')
     plt.figure(figsize=(12, 6))
-    plt.plot(df['date'], df['cum_pnl'], label='Equity Curve', color='blue')
+    plt.plot(df['date'], df['equity'], label='Equity Curve', color='blue')
     plt.axhline(initial_capital, color='orange', linestyle='--', label='Initial Capital')
     plt.xlabel('Date')
     plt.ylabel('Portfolio Value ($)')
@@ -59,7 +59,7 @@ def plot_equity_curve(df: pd.DataFrame, ticker: str, initial_capital: float) -> 
     plt.grid(True)
     plt.gca().yaxis.set_major_formatter(mtick.StrMethodFormatter('${x:,.0f}'))
     plt.legend()
+    plt.savefig(f'{PROJECT_ROOT}/results/equity/{ticker.lower().replace("-", "_").replace(".", "_")}_equity_curve.png', dpi=300)
     plt.show()
-    plt.savefig(f'{PROJECT_ROOT}/results/equity/{ticker.lower().replace("-", "_")}_equity_curve.png', dpi=300)
 
-#TODO: drawdown chart
+

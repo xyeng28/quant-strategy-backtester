@@ -11,7 +11,7 @@ from src.metrics.performance import calc_metrics
 from src.metrics.trade import calc_trades, calc_trades_metrics, get_recent_trades
 
 
-def compute_all_metrics(df: pd.DataFrame, ticker: str, strategy_id: str) -> pd.DataFrame:
+def compute_all_metrics(df: pd.DataFrame, ticker: str, strategy_id: str, initial_capital: float) -> pd.DataFrame:
     """
     Run all metric calculations
     """
@@ -27,7 +27,7 @@ def compute_all_metrics(df: pd.DataFrame, ticker: str, strategy_id: str) -> pd.D
     print(trade_metrics_df)
     get_recent_trades(trades_df, ticker, strategy_id, metrics_dir)
 
-    metrics_df = calc_metrics(df, ticker)
+    metrics_df = calc_metrics(df, ticker, initial_capital=initial_capital)
     metrics_df = pd.concat([metrics_df, trade_metrics_df], axis=1)
     print(f'\nmetrics_df: \n{metrics_df}')
     metrics_df.to_csv(f'{metrics_dir}/metrics_{strategy_id}_{ticker.lower().replace("-", "_")}.csv', index=False)
@@ -43,5 +43,5 @@ def backtest_sma_macd_rsi(sd: str, ed: str, ticker: str, strategy_params: dict, 
 
     date_str = dtt.now(pytz.timezone('America/New_York')).strftime('%Y_%m_%d')
     strategy_id = f'sma_macd_rsi_{date_str}'
-    metrics_df = compute_all_metrics(df, ticker, strategy_id)
+    metrics_df = compute_all_metrics(df, ticker, strategy_id, execution_params['initial_capital'])
     return metrics_df

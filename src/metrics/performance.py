@@ -6,18 +6,18 @@ from pandas.io.formats.style import Styler
 
 from src.constants import PROJECT_ROOT
 
-def calc_metrics(df: pd.DataFrame, ticker: str) -> pd.DataFrame:
+def calc_metrics(df: pd.DataFrame, ticker: str, initial_capital:float) -> pd.DataFrame:
     print(f'Calculating Metrics for ticker {ticker}')
-    total_return = round((df['cum_ret'].iloc[-1] - 1) * 100, 2)
+    total_return = round((df['equity'].iloc[-1] / initial_capital - 1) * 100, 2)
     print(f'total_return: {total_return}%')
 
-    sharpe = round((df['daily_ret_c2c'].mean() / df['daily_ret_c2c'].std() * np.sqrt(252)), 2)
-    print(f'sharpe: {sharpe}%')
+    sharpe = round((df['strategy_ret'].mean() / df['strategy_ret'].std()) * np.sqrt(252), 2)
+    print(f'sharpe: {sharpe}')
 
-    max_drawdown = round(((df['cum_ret'] / df['cum_ret'].cummax() - 1).min()), 2)
+    max_drawdown = round(((df['equity'] / df['equity'].cummax() - 1).min()) * 100, 2)
     print(f'max_drawdown: {max_drawdown}%')
 
-    total_pnl = round(df['daily_pnl'].sum(), 2)
+    total_pnl = round(df['equity'].iloc[-1] - initial_capital, 2)
     print(f'total_pnl: ${total_pnl}')
 
     metrics_df = pd.DataFrame({
@@ -36,7 +36,12 @@ def get_all_metrics_by_strategy(strategy_id:str) -> pd.DataFrame:
     files = glob.glob(os.path.join(f_dir, 'metrics_*'))
 
     dfs = [pd.read_csv(f) for f in files]
-    return pd.concat(dfs, ignore_index=True)
+    df = pd.concat(dfs, ignore_index=True)
+    df = df.sort_values(
+        by=["sharpe_ratio", "total_return", "max_drawdown"],
+        ascending=[False, False, True]
+    )
+    return df
 
 def style_metrics_df(df:pd.DataFrame) -> Styler:
     return df.style.format({'total_return': "${:,.2f}",
