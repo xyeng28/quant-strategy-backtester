@@ -38,7 +38,7 @@ To avoid common biases:
 - Signals are generated using information available at time t (close prices)
 - Trades are executed at t+1 (next-day execution)
 - Long-only (no short selling)
-- Full capital allocation when in position
+- 50% capital allocation when in position
 - Fixed transaction fee: Assume 0.005 USD per share for simplicity
 - No slippage modeled
 - No leverage
@@ -85,7 +85,7 @@ Exit Condition 2:
 ├── data/
 ├── strategies/
 ├── src/
-├── backtester/
+├── backtest/
         ├── backtester.py
         ├── strategies.py
         ├── indicators.py
@@ -98,9 +98,8 @@ Exit Condition 2:
 └── README.md
 ```
 
-backtester/ – core simulation engine\
-strategies/ – signal generation logic\
-metrics/ – performance evaluation\
+backtest/ – core simulation engine\
+metrics/ – performance and trade evaluation\
 notebooks/ – research and visualisation
 
 ## Key Considerations
@@ -110,6 +109,7 @@ notebooks/ – research and visualisation
 
 ## Future Improvements
 - Mean Reversion Strategies
+- Add drawdown chart
 
 ## Disclaimer
 - This repository does not constitute financial advice.
