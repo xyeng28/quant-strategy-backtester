@@ -44,9 +44,9 @@ def get_all_metrics_by_strategy(strategy_id:str) -> pd.DataFrame:
     return df
 
 def style_metrics_df(df:pd.DataFrame) -> Styler:
-    return df.style.format({'total_return': "${:,.2f}",
-                          'max_drawdown': '{:.2%}',
+    return df.style.format({'total_return': "{:.2f}%",
+                          'max_drawdown': '{:.2f}%',
                           'total_pnl': '${:,.2f}',
-                          'pct_profitable': '{:}%',  # win rate
+                          'pct_profitable': '{:.2f}%',
                           'avg_pnl_per_trade': '${:,.2f}',
                           })
