@@ -1,4 +1,4 @@
-from src.backtester.backtester import backtest_sma_macd_rsi
+from src.backtest.backtester import backtest_sma_macd_rsi
 
 if __name__ == '__main__':
     start_date = "2022-01-01"

@@ -62,3 +62,4 @@ def plot_equity_curve(df: pd.DataFrame, ticker: str, initial_capital: float) -> 
     plt.show()
     plt.savefig(f'{PROJECT_ROOT}/results/equity/{ticker.lower().replace("-", "_")}_equity_curve.png', dpi=300)
 
+#TODO: drawdown chart

@@ -1,14 +1,14 @@
 import pandas as pd
-from src.backtester.backtester import backtest_sma_macd_rsi, compute_all_metrics
+from src.backtest.backtester import backtest_sma_macd_rsi, compute_all_metrics
 from unittest.mock import patch
 
 @patch("os.makedirs")
 @patch("pandas.DataFrame.to_csv")
-@patch("src.backtester.backtester.calc_trades")
-@patch("src.backtester.backtester.calc_trades_metrics")
-@patch("src.backtester.backtester.get_recent_trades")
-@patch("src.backtester.backtester.calc_metrics")
-@patch("src.backtester.backtester.PROJECT_ROOT", "/mock_project")
+@patch("src.backtest.backtester.calc_trades")
+@patch("src.backtest.backtester.calc_trades_metrics")
+@patch("src.backtest.backtester.get_recent_trades")
+@patch("src.backtest.backtester.calc_metrics")
+@patch("src.backtest.backtester.PROJECT_ROOT", "/mock_project")
 def test_compute_all_metrics_when_valid_should_return_df(
     mock_calc_metrics,
     mock_get_recent_trades,
@@ -79,10 +79,10 @@ def test_compute_all_metrics_when_valid_should_return_df(
     assert isinstance(result, pd.DataFrame)
 
 
-@patch('src.backtester.backtester.compute_all_metrics')
-@patch('src.backtester.backtester.generate_portfolio')
-@patch('src.backtester.backtester.sma_macd_rsi')
-@patch('src.backtester.backtester.dl_ticker_hist')
+@patch('src.backtest.backtester.compute_all_metrics')
+@patch('src.backtest.backtester.generate_portfolio')
+@patch('src.backtest.backtester.sma_macd_rsi')
+@patch('src.backtest.backtester.dl_ticker_hist')
 def test_backtest_sma_macd_rsi_when_valid_should_return_df(mock_dl, mock_sma, mock_gen_portfolio, mock_metrics):
     sd = "2022-01-01"
     ed = "2026-01-29"

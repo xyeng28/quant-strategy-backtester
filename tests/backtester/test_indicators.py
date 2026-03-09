@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import pytest
 from pandas import testing as pdt
-from src.backtester.indicators import sma, ema, macd, rsi
+from src.backtest.indicators import sma, ema, macd, rsi
 
 def test_sma_when_valid_should_return_sma():
     data = pd.Series([1, 2, 3, 4, 5])

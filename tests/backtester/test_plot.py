@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.dates as mdates
-from src.backtester.plot import plot_sma, plot_macd, plot_rsi, plot_equity_curve
+from src.backtest.plot import plot_sma, plot_macd, plot_rsi, plot_equity_curve
 from unittest.mock import patch
 from matplotlib import pyplot as plt
 

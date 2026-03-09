@@ -1,6 +1,6 @@
 from unittest.mock import patch
 import pandas as pd
-from src.backtester.portfolio import calc_pnl, calc_returns, calc_posn_and_trades, generate_portfolio
+from src.backtest.portfolio import calc_pnl, calc_returns, calc_posn_and_trades, generate_portfolio
 
 
 def test_calc_pnl_when_valid_initial_cap_should_return_df():
@@ -64,9 +64,9 @@ def test_calc_posn_and_trades_when_valid_should_return_df():
     assert result['trade_cost'].tolist() == expected_trade_cost
 
 
-@patch("src.backtester.portfolio.calc_returns")
-@patch("src.backtester.portfolio.calc_pnl")
-@patch("src.backtester.portfolio.calc_posn_and_trades")
+@patch("src.backtest.portfolio.calc_returns")
+@patch("src.backtest.portfolio.calc_pnl")
+@patch("src.backtest.portfolio.calc_posn_and_trades")
 def test_generate_portfolio_when_valid_should_return_df(mock_calc_posn_and_trades, mock_calc_pnl,
                                                         mock_calc_returns):
     df = pd.DataFrame({

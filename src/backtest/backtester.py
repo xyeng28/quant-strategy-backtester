@@ -4,8 +4,8 @@ import pytz
 
 from src.constants import PROJECT_ROOT
 from src.data.data_utils import dl_ticker_hist
-from src.backtester.strategies import sma_macd_rsi
-from src.backtester.portfolio import generate_portfolio
+from src.backtest.strategies import sma_macd_rsi
+from src.backtest.portfolio import generate_portfolio
 from datetime import datetime as dtt
 from src.metrics.performance import calc_metrics
 from src.metrics.trade import calc_trades, calc_trades_metrics, get_recent_trades

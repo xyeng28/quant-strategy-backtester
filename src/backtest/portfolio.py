@@ -15,7 +15,7 @@ def calc_pnl(df: pd.DataFrame, initial_capital: float) -> pd.DataFrame:
     :return:
     """
     print(f'Calculating Pnl...')
-    df['daily_ret_c2c'] = df['close_px'].pct_change()
+    df['daily_ret_o2c'] = (df['close_px'] - df['open_px']) / df['open_px']
     df.loc[df.index[0], 'daily_ret_c2c'] = 0
     df['daily_pnl'] = df['daily_ret_c2c'] * df['position'].shift(1) - df['trade_cost']
     df.loc[df.index[0], 'daily_pnl'] = 0

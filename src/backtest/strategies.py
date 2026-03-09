@@ -1,7 +1,7 @@
 import pandas as pd
-from src.backtester.indicators import sma
-from src.backtester.indicators import macd
-from src.backtester.indicators import rsi
+from src.backtest.indicators import sma
+from src.backtest.indicators import macd
+from src.backtest.indicators import rsi
 
 
 def cross_up(series_fast: pd.Series, series_slow: pd.Series) -> pd.Series:

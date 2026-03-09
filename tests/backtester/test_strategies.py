@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from src.backtester.strategies import confirm_signal_lb, sma_macd_rsi, generate_signals_sma_macd_rsi
+from src.backtest.strategies import confirm_signal_lb, sma_macd_rsi, generate_signals_sma_macd_rsi
 from unittest.mock import patch
 
 
@@ -24,7 +24,7 @@ def mock_rsi():
 
 @pytest.fixture
 def mock_smas():
-    with patch("src.backtester.strategies.sma") as mock_func:
+    with patch("src.backtest.strategies.sma") as mock_func:
         mock_func.side_effect = [
             pd.Series([False, True, False]),
             pd.Series([False, False, True])
@@ -34,7 +34,7 @@ def mock_smas():
 
 @pytest.fixture
 def mock_macd():
-    with patch("src.backtester.strategies.macd") as mock_func:
+    with patch("src.backtest.strategies.macd") as mock_func:
         mock_func.return_value = pd.DataFrame({
             "macd": [0.1, 0.2, 0.3],
             "macd_signal": [0.05, 0.15, 0.25]
@@ -74,9 +74,9 @@ def test_confirm_signal_when_min_periods_should_return_series():
     pd.testing.assert_series_equal(result, expected)
 
 
-@patch("src.backtester.strategies.generate_signals_sma_macd_rsi")
-@patch("src.backtester.strategies.confirm_signal_lb")
-@patch("src.backtester.strategies.cross_up")
+@patch("src.backtest.strategies.generate_signals_sma_macd_rsi")
+@patch("src.backtest.strategies.confirm_signal_lb")
+@patch("src.backtest.strategies.cross_up")
 def test_confirm_signal_lb_when_valid_should_return_df(mock_cross_up, mock_confirm,
                                                              mock_generate, strategy_params,
                                                              mock_smas, mock_macd, mock_rsi):
