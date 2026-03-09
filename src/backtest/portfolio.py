@@ -35,9 +35,13 @@ def calc_posn_and_trades(df: pd.DataFrame, allocation: float, initial_capital: f
     # Can use / for fractional shares
     print(f'Calculating Positions and Trades...')
     df['position'] = df['holding'] * (allocation * initial_capital)
+    df['position_shrs'] = np.nan
     df.loc[df['trade'] == 'BUY', 'position_shrs'] = df['position'] // df['close_px']
-    df['position_shrs'] = df['position_shrs'].replace(0, np.nan).ffill().fillna(0)
+    df.loc[df['holding'] == 0, 'position_shrs'] = 0
+    df['position_shrs'] = df['position_shrs'].ffill().fillna(0)
     df.loc[df['trade'] == 'SELL', 'position_shrs'] = 0
+    # print(df[['trade', 'holding', 'position', 'position_shrs']].head(30))
+    # print(df[['trade', 'holding', 'position', 'position_shrs']].value_counts())
 
     df['trade_shrs'] = 0
     df.loc[df['trade'] == 'BUY', 'trade_shrs'] = df['position_shrs']
