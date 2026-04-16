@@ -2,6 +2,7 @@ import pandas as pd
 from src.backtest.indicators import sma
 from src.backtest.indicators import macd
 from src.backtest.indicators import rsi
+from src.statistics.statistics import compute_z_score
 
 
 def cross_up(series_fast: pd.Series, series_slow: pd.Series) -> pd.Series:
@@ -82,3 +83,60 @@ def sma_macd_rsi(df: pd.DataFrame, strategy_params: dict) -> pd.DataFrame:
     print(df)
     df = generate_signals_sma_macd_rsi(df, holding_period=5)
     return df
+
+def pca_signal(residuals: np.ndarray, index: pd.Index, cols: list) -> pd.DataFrame:
+    signal = -compute_z_score(residuals)
+    print(f'signal:{signal}')
+    signal_df = pd.DataFrame(signal, index=index, columns=cols)
+    # print(f'signal_df:{signal_df}')
+    # print(f'signal_df:{type(signal_df)}')
+    return signal_df
+
+def pca_strategy(residuals: np.ndarray, index: pd.Index, cols: list) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    signal positive -> buy pressure
+    signal negative -> sell pressure
+    upper = 1 (long underpriced) and lower = -1 (short overpriced) means trade when signal is +-1 std dev away from the mean
+     #
+    :param residuals:
+    :param index:
+    :param cols:
+    :return:
+    """
+    print(f'index:{index}')
+    print(f'cols:{cols}')
+    signal_df = pca_signal(residuals, index, cols)
+    weights_df = signal_df.div(signal_df.abs().sum(axis=1), axis=0)
+
+    upper = 1.0
+    lower = -1.0
+    holding_df = pd.DataFrame(
+        np.where(signal_df < lower, 1,
+                 np.where(signal_df > upper, -1, 0)),
+        index=signal_df.index,
+        columns=signal_df.columns
+    )
+
+    trade_df = pd.DataFrame("", index=holding_df.index, columns=holding_df.columns)
+    trade_df[holding_df.diff() > 0] = "BUY"
+    trade_df[holding_df.diff() < 0] = "SELL"
+    return signal_df, holding_df, weights_df, trade_df
+
+def regression_signal(returns_df: pd.DataFrame, y_pred) -> pd.DataFrame:
+    """
+    y_pred is the predicted returns of the y. Eg. Wheat. If pred return > 0 -> expect price to go up.
+    If pred return < 0 -> expect price to go down.
+    :param returns_df:
+    :param principal_components:
+    :return:
+    """
+    returns_df['y_pred'] = y_pred
+    returns_df['signal'] = 0
+    returns_df.loc[returns_df['y_pred'] > 0, 'signal'] = 1
+    returns_df.loc[returns_df['y_pred'] > 0, 'side'] = 'LONG'
+    returns_df.loc[returns_df['y_pred'] < 0, 'signal'] = -1
+    returns_df.loc[returns_df['y_pred'] < 0, 'side'] = 'SHORT'
+    return returns_df
+
+
+
