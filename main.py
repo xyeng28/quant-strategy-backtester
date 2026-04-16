@@ -1,4 +1,4 @@
-from src.backtest.backtester import backtest_sma_macd_rsi
+from src.backtest.backtester import backtest_sma_macd_rsi, backtest_pca
 
 if __name__ == '__main__':
     start_date = "2022-01-01"
@@ -18,4 +18,5 @@ if __name__ == '__main__':
         "rsi_period": 7,
         "lookback_days": 5
     }
-    backtest_sma_macd_rsi(start_date, end_date, ticker, strategy_params, execution_params)
+    # backtest_sma_macd_rsi(start_date, end_date, ticker, strategy_params, execution_params)
+    backtest_pca(execution_params=execution_params)
