@@ -107,9 +107,15 @@ notebooks/ – research and visualisation
 - No parameter optimisation or walk-forward testing is included in the base implementation.
 - Results are sensitive to transaction costs and execution assumptions.
 
+## Additional Features
+- PCA Backtest notebook
+- Linear Regression model
+
 ## Future Improvements
 - Mean Reversion Strategies
-- Add drawdown chart
+- Download 3-5 years historical datasets for PCA backtest
+- Add Linear Regression notebook
+- Add logging
 
 ## Disclaimer
 - This repository does not constitute financial advice.
