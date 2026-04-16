@@ -62,4 +62,22 @@ def plot_equity_curve(df: pd.DataFrame, ticker: str, initial_capital: float) -> 
     plt.savefig(f'{PROJECT_ROOT}/results/equity/{ticker.lower().replace("-", "_").replace(".", "_")}_equity_curve.png', dpi=300)
     plt.show()
 
+def plot_portfolio_val(df:pd.DataFrame, strategy_type:str):
+    strategy_type = strategy_type.capitalize()
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
+    ax1.plot(df['date'], df['port_val'], label='Portfolio Value', color='blue')
+    ax1.set_title(f'{strategy_type} Strategy Portfolio Value')
+    ax1.set_ylabel('Portfolio Value ($)')
+    ax1.legend()
+    # ax1.grid(True)
+
+    ax2.plot(df['date'], df['dd'], label='Drawdown', color='red')
+    ax2.set_xlabel('Date')
+    ax2.set_ylabel('Drawdown (%)')
+    ax2.set_title(f'{strategy_type} Strategy Drawdown')
+    ax2.legend()
+    # ax2.grid(True)
+
+    plt.tight_layout()
+    plt.show()
 

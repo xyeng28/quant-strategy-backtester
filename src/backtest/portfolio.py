@@ -35,6 +35,10 @@ def calc_pnl(df: pd.DataFrame, initial_capital: float) -> pd.DataFrame:
     df['equity'] = initial_capital + df['daily_pnl'].cumsum()
     df['cum_pnl'] = df['equity'] - initial_capital
     df['cum_ret_pct'] = (df['equity'] / initial_capital - 1) * 100
+
+    df['cum_ret'] = (1 + df['strategy_ret']).cumprod()
+    df['port_val'] = df['cum_ret'] * initial_capital
+    df['dd'] = df['cum_ret'] / df['cum_ret'].cummax() - 1
     # print(df[['close_px', 'position', 'daily_ret_o2c', 'cum_ret', 'daily_pnl', 'cum_pnl', 'cum_ret_pct']])
     return df
 

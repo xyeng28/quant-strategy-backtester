@@ -11,7 +11,11 @@ def calc_metrics(df: pd.DataFrame, ticker: str, initial_capital:float) -> pd.Dat
     total_return = round((df['equity'].iloc[-1] / initial_capital - 1) * 100, 2)
     print(f'total_return: {total_return}%')
 
-    sharpe = round((df['strategy_ret'].mean() / df['strategy_ret'].std()) * np.sqrt(252), 2)
+    ret = df['strategy_ret'].dropna()
+    if len(ret) < 2 or np.isclose(ret.std(), 0):
+        sharpe = np.nan
+    else:
+        sharpe = round((df['strategy_ret'].mean() / df['strategy_ret'].std()) * np.sqrt(252), 2)
     print(f'sharpe: {sharpe}')
 
     max_drawdown = round(((df['equity'] / df['equity'].cummax() - 1).min()) * 100, 2)
