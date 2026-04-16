@@ -19,8 +19,8 @@ def test_compute_all_metrics_when_valid_should_return_df(
 ):
     df = pd.DataFrame({
         "date": ["2026-01-01", "2026-01-02"],
-        "long_entry": [True, False],
-        "long_exit": [False, True],
+        "entry": [True, False],
+        "exit": [False, True],
         "position": [1, 0],
         "position_shrs": [1, 0],
         "trade_shrs": [1, 0],
@@ -38,8 +38,8 @@ def test_compute_all_metrics_when_valid_should_return_df(
     strategy_id = "strategy_1"
     mock_calc_trades.return_value = pd.DataFrame({
         "date": ["2026-01-01", "2026-01-02"],
-        "long_entry": [True, False],
-        "long_exit": [False, True],
+        "entry": [True, False],
+        "exit": [False, True],
         "position_shrs": [1, 0],
         "trade_shrs": [1, 0],
         "avg_pnl_per_trade": [60.5, 60.5],
@@ -64,13 +64,13 @@ def test_compute_all_metrics_when_valid_should_return_df(
     ])
 
     mock_get_recent_trades.return_value = None
-    result = compute_all_metrics(df, ticker, strategy_id, initial_capital=initial_capital)
+    result = compute_all_metrics(df, strategy_id, initial_capital=initial_capital, ticker=ticker)
 
     mock_makedirs.assert_called_once()
     mock_calc_trades.assert_called_once_with(df, strategy_id)
     mock_calc_trades_metrics.assert_called_once()
     mock_get_recent_trades.assert_called_once()
-    mock_calc_metrics.assert_called_once_with(df, ticker, initial_capital=initial_capital)
+    mock_calc_metrics.assert_called_once_with(df, initial_capital=initial_capital, ticker=ticker)
     mock_to_csv.assert_called_once()
 
     expected_cols = [

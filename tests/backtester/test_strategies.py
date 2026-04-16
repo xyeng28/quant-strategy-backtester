@@ -105,23 +105,23 @@ def test_confirm_signal_lb_when_valid_should_return_df(mock_cross_up, mock_confi
     mock_confirm.assert_called_once()
     mock_generate.assert_called_once()
 
-    assert "long_entry" in sma_macd_rsi_df.columns
-    assert "long_exit" in sma_macd_rsi_df.columns
+    assert "entry" in sma_macd_rsi_df.columns
+    assert "exit" in sma_macd_rsi_df.columns
 
 
-@pytest.mark.parametrize("long_entry,long_exit,holding_period, exp_holdings, exp_trades, exp_days_in_position", [
+@pytest.mark.parametrize("entry,exit,holding_period, exp_holdings, exp_trades, exp_days_in_position", [
     ([True, False, False], [False, False, True], 2, [1, 1, 0], ['BUY', 'HOLD', 'SELL'], [1, 2, 0]),
     ([True, False, False], [False, True, False], 5, [1, 0, 0], ['BUY', 'SELL', ''], [1, 0, 0]),
     ([True, False, False, False], [False, False, False, False], 3, [1, 1, 1, 0], ['BUY', 'HOLD', 'HOLD', 'SELL'],
      [1, 2, 3, 0]),
 ])
-def test_generate_signals_sma_macd_rsi_when_valid_periods_should_return_df(long_entry, long_exit,
+def test_generate_signals_sma_macd_rsi_when_valid_periods_should_return_df(entry, exit,
                                                                            holding_period, exp_holdings, exp_trades,
                                                                            exp_days_in_position):
     df = pd.DataFrame({
-        "date": pd.date_range("2024-01-01", periods=len(long_entry)),
-        "long_entry": long_entry,
-        "long_exit": long_exit
+        "date": pd.date_range("2024-01-01", periods=len(entry)),
+        "entry": entry,
+        "exit": exit
     })
     result_df = generate_signals_sma_macd_rsi(df.copy(), holding_period=holding_period)
     assert result_df['holding'].tolist() == exp_holdings

@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from src.backtest.indicators import sma
 from src.backtest.indicators import macd
@@ -29,13 +30,13 @@ def generate_signals_sma_macd_rsi(df: pd.DataFrame, holding_period: int = 5):
 
     for i in range(len(df)):
         # Enter if entry signal and currently flat
-        if df['long_entry'].iat[i] and not in_position:
+        if df['entry'].iat[i] and not in_position:
             days_in_position = 1
             in_position = True
             holdings[i] = 1
             trades[i] = 'BUY'
         # To exit upon exit signal
-        elif in_position and df['long_exit'].iat[i] and days_in_position < holding_period:
+        elif in_position and df['exit'].iat[i] and days_in_position < holding_period:
             in_position = False
             days_in_position = 0
             holdings[i] = 0
@@ -56,7 +57,7 @@ def generate_signals_sma_macd_rsi(df: pd.DataFrame, holding_period: int = 5):
     df['holding'] = holdings
     df['trade'] = trades
     df['days_in_position'] = days_in_posn_list
-    # print(df[['date', 'long_entry','long_exit','holding','days_in_position']])
+    # print(df[['date', 'entry','exit','holding','days_in_position']])
     return df
 
 
@@ -76,8 +77,8 @@ def sma_macd_rsi(df: pd.DataFrame, strategy_params: dict) -> pd.DataFrame:
     df['rsi_long_signal'] = df['rsi'] > 50 & (df['rsi'].shift(1) <= 50)
 
     df['rsi_recent'] = confirm_signal_lb(df, 'rsi_long_signal', strategy_params['lookback_days'])
-    df['long_entry'] = df['rsi_recent'] & (df['sma_cross_long'] | df['macd_cross_long'])
-    df['long_exit'] = (df['sma_cross_long'] == False) | (df['macd_cross_long'] == False)
+    df['entry'] = df['rsi_recent'] & (df['sma_cross_long'] | df['macd_cross_long'])
+    df['exit'] = (df['sma_cross_long'] == False) | (df['macd_cross_long'] == False)
 
     print(df.columns)
     print(df)
