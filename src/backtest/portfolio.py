@@ -72,3 +72,24 @@ def generate_portfolio(df: pd.DataFrame, execution_params: dict) -> pd.DataFrame
     portfolio_df = calc_returns(portfolio_df)
     portfolio_df = calc_pnl(portfolio_df, initial_capital)
     return portfolio_df
+
+def convert_multi_to_single_asset(holding_df, trade_df, prices_df):
+    print(f'prices_df:{prices_df}')
+    holding_series = holding_df.sum(axis=1)
+    trade_event = trade_df.replace({"BUY": 1, "SELL": -1, "": 0})
+    trade_series = trade_event.sum(axis=1)
+
+    entries = (holding_series != 0) & (holding_series.shift(1) == 0)
+    exits = (holding_series == 0) & (holding_series.shift(1) != 0)
+
+    close_px_series = (holding_df * prices_df).sum(axis=1)
+    open_px_series = close_px_series.shift(1)
+    portfolio_df = pd.DataFrame({
+        "holding": holding_series,
+        "trade": trade_series,
+        "close_px": close_px_series,
+        "open_px": open_px_series,
+        "entry": entries,
+        "exit": exits,
+    }, index=holding_df.index).reset_index()
+    return portfolio_df
